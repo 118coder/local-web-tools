@@ -1,0 +1,33 @@
+# 更新日志（开发者向）
+
+格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循语义化。
+
+## v1.0.0 — 2026-10-08
+
+首个公开发布版本。
+
+### 相对于内部版本「墨客md·最终稳定版-3」的修复
+
+以下 4 项均通过无头浏览器自动化回路（Playwright + Edge，21 项断言）先红后绿验证，正向对照（导出五件套、降级模式、主题持久化、自动保存等 17 项）无回归：
+
+| # | 问题 | 根因 | 修复 |
+|---|------|------|------|
+| 1 | **自动备份被清空（数据丢失）**：编辑器尚未初始化完成时切换标签页/关闭页面，`getMd()` 返回空串，把已有备份覆盖为空 | `visibilitychange` / `beforeunload` 处理器缺少"内容已初始化"守卫 | 新增 `contentReady` 标志，首次 `setValue` 完成前禁止写备份 |
+| 2 | **翻译机制改写用户正文（数据损坏）**：正文中恰好独立成行的 `Edit`/`Desktop`/`Refresh` 等英文词被替换成中文并写进文档和备份 | UI 翻译的 TreeWalker 遍历了整个编辑器，包括源码编辑区（contenteditable）和预览区 | 翻译器跳过用户正文区（contenteditable / `.vditor-reset` / `.vditor-wysiwyg` / `.vditor-ir`），仅翻译真正的界面文案 |
+| 3 | **退出全屏后视图模式被重置为分屏** | 重初始化时 `applyViewMode('split')` 写死 | 改为恢复记忆的 `currentViewMode` |
+| 4 | **窗口缩放时编辑器高度不更新** | Vditor 3.11.0 没有公开的 `resize` 方法，`vditor.resize()` 全部静默抛错被吞掉 | 新增 `resizeEditorHeight()` 直接设置容器高度 |
+
+### 文案调整
+
+- 页面副标题与「介绍」区块改为面向普通用户的表述；示例文档末尾的开发者提示改为使用提示。
+
+### 已知限制（技术细节）
+
+- 深色模式下预览区表格行底色仍偏亮：`vditor.setTheme()` 未传内容主题参数，light content-theme 的行背景未被 `.export-style` 覆盖。仅影响观感，不影响导出结构。
+- 简易（降级）模式的 `simpleMarkdownToHtml` 不支持表格语法。
+- 导入文件按 UTF-8 读取（`FileReader.readAsText` 默认），GBK 等编码会乱码。
+- 依赖 jsdelivr CDN；完全离线时自动进入简易模式。
+
+### 构建 / 上传环境备注
+
+- 仓库首推经 api.github.com Git Data API 通道完成（构建环境直连 github.com:443 不通）。

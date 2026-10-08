@@ -222,7 +222,7 @@
         <div class="card-model">
             <div class="card-body">
                 <div class="tool-head"><h1 class="title">Markdown在线编辑器，Markdown转Word/Html/Pdf/图片</h1></div>
-                <div class="description">Vditor 引擎驱动 · 导出图片固定宽度 · 表格列宽均匀不挤 · 预览与导出一致</div>
+                <div class="description">免费 · 免安装 · 打开即用 —— 左边写作，右边实时预览，一键导出 Word / PDF / HTML / 长图片</div>
                 <div class="loading" id="loading"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2AAD67" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg></div>
                 <div class="op-model" id="opButtons" style="display:none;">
                     <div class="btn-group">
@@ -258,9 +258,9 @@
                 <div class="divider"></div>
                 <div class="content">
                     <h3>介绍</h3>
-                    <p>一款非常棒的Markdown在线编辑器。并且可以免费把Markdown文档转为word文档、pdf文件、html文件、png图片。</p>
-                    <p>此Markdown编辑器还可以切换编辑模式，有所见即所得模式，即时渲染模式，分屏预览模式。</p>
-                    <p>您可以用它取代Markdown桌面应用程序。</p>
+                    <p>墨客md 是一款免费的 Markdown 编辑器：左边写作，右边实时预览，写完一键导出 Word 文档、PDF 文件、网页或长图片。</p>
+                    <p>无需安装、无需注册，打开就能用。内容自动保存在你自己的浏览器里，关掉页面也不会丢。</p>
+                    <p>支持表格、代码高亮、数学公式、任务清单，还有护眼的深色夜间模式。</p>
                 </div>
             </div>
         </div>
@@ -807,7 +807,7 @@
         function showToast(msg) { var el = document.createElement('div'); el.className = 'layer-msg'; el.textContent = msg; document.body.appendChild(el); setTimeout(function() { el.style.opacity = '0'; setTimeout(function() { if (el.parentNode) document.body.removeChild(el); }, 300); }, 1500); }
         function saveAs(blob, filename) { if (window.navigator.msSaveOrOpenBlob) { window.navigator.msSaveOrOpenBlob(blob, filename); } else { var a = document.createElement('a'); var url = URL.createObjectURL(blob); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100); } }
         function getTimeStr() { var d = new Date(); function pad(n) { return n < 10 ? '0' + n : '' + n; } return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()); }
-        function getSample() { return '# Markdown 功能演示\n\n## 表格演示\n\n| 闸门 | 作用范围 | 效果 |\n| --- | --- | --- |\n| 连续施加衰减 | 连招中连续第 N 次触发 | 冻结强度按 N 递减 |\n| 物理半径过滤 | 命中点与目标的距离 | 稍远的目标被剔除 |\n| 150 tick 硬上限 | 场景冻结 | 配得再长也会被掐断 |\n| 击杀特写配额 | 终结演出 | 一场约 5 次 |\n\n## 基础语法\n\n**加粗**、*斜体*、~~删除线~~、`行内代码`\n\n## 列表\n\n- 无序列表项\n  - 嵌套项\n- [ ] 待办事项\n- [x] 已完成事项\n\n## 引用\n\n> 这是一段引用文本\n\n## 代码块\n\n```javascript\nfunction hello() {\n    console.log("Hello, Vditor!");\n}\n```\n\n## 数学公式\n\n行内公式：$E = mc^2$\n\n$$\n\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n$$\n\n---\n\n> **提示**：现在预览区和导出图片的样式完全一致了。\n'; }
+        function getSample() { return '# Markdown 功能演示\n\n## 表格演示\n\n| 闸门 | 作用范围 | 效果 |\n| --- | --- | --- |\n| 连续施加衰减 | 连招中连续第 N 次触发 | 冻结强度按 N 递减 |\n| 物理半径过滤 | 命中点与目标的距离 | 稍远的目标被剔除 |\n| 150 tick 硬上限 | 场景冻结 | 配得再长也会被掐断 |\n| 击杀特写配额 | 终结演出 | 一场约 5 次 |\n\n## 基础语法\n\n**加粗**、*斜体*、~~删除线~~、`行内代码`\n\n## 列表\n\n- 无序列表项\n  - 嵌套项\n- [ ] 待办事项\n- [x] 已完成事项\n\n## 引用\n\n> 这是一段引用文本\n\n## 代码块\n\n```javascript\nfunction hello() {\n    console.log("Hello, Vditor!");\n}\n```\n\n## 数学公式\n\n行内公式：$E = mc^2$\n\n$$\n\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n$$\n\n---\n\n> **提示**：写完点上方按钮，就能导出 Word、PDF 或图片。\n'; }
 
         window.exportMd = exportMd; window.exportHtml = exportHtml; window.exportDoc = exportDoc; window.exportPdf = exportPdf; window.exportImage = exportImage;
         window.copySource = copySource; window.copyPreview = copyPreview; window.setViewMode = setViewMode; window.toggleFullscreen = toggleFullscreen;
