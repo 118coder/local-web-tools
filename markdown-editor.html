@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <title>Markdown在线编辑器，Markdown免费转Word/Html/Pdf/图片 - 在线工具</title>
+    <meta name="description" content="Markdown在线编辑器，支持导出 Word / HTML / PDF / PNG 图片。" />
+    <meta name="keywords" content="Markdown在线编辑器, Markdown转word, Markdown转pdf, Markdown转html, Markdown转图片" />
+    <link rel="shortcut icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor@3.11.0/dist/index.css" />
+    <style>
+        :root { --transition-speed:.25s; --bg-color:#fff; --bg-color-dark:#f3f3f3; --bg-color-dark2:#ededed; --text-color:#333; --text-gray-color:#8A8B91; --border-color:#e6e6e8; --border-color-dark:#ddd; --border-color-dark2:#ccc; --primary-color:#2AAD67; --primary-rgb:42,173,103; }
+        [data-theme="dark"] { --bg-color:#1a1a1a; --bg-color-dark:#000; --bg-color-dark2:#000; --text-color:#E1E1E1; --text-gray-color:#939193; --border-color:#363636; --border-color-dark:#414243; --border-color-dark2:#555; }
+        * { box-sizing: border-box; transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed); }
+        html { position: relative; min-height: 100%; }
+        body { margin:0; padding:0; font-family: Microsoft YaHei, Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, SimSun, sans-serif; font-size: 14px; color: var(--text-color); line-height: 1.42857143; background-color: var(--bg-color-dark); }
+        dl, dt, dd, ul, ol, li { margin:0; padding:0; list-style:none; }
+        p { margin: 0 0 10px 0; } a { color: unset; text-decoration: none; } h1, h2, h3 { margin: 0; }
+        .divider { display:block; height:1px; width:100%; margin:15px 0; padding:0 !important; background-color: var(--border-color-dark2); position: relative; }
+        .main-nav { position:fixed; top:0; z-index:1000; width:100%; background: var(--bg-color); border-bottom:1px solid var(--border-color); }
+        .nav-top { padding:0 15px; display:flex; height:55px; line-height:55px; justify-content:space-between; align-items:center; }
+        .nav-top .logo { display:flex; align-items:center; font-size:18px; font-weight:600; }
+        .nav-top .logo svg { width:36px; height:36px; margin-right:10px; }
+        .nav-top .right { display:flex; align-items:center; gap:12px; }
+        .nav-top .right .theme-btn { font-size:22px; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:6px; background:none; border:none; color: var(--text-color); }
+        .nav-top .right .theme-btn:hover { background: var(--bg-color-dark); }
+        .main-body { width:100%; max-width:1200px; margin:0 auto; padding:70px 15px 15px 15px; }
+        .card-model { width:100%; background: var(--bg-color); margin-bottom:15px; border-radius:4px; }
+        .card-model .card-body { padding:15px; }
+        .tool-head { display:flex; justify-content:space-between; border-bottom:1px solid var(--primary-color); padding-bottom:10px; margin:0 0 10px 0; }
+        .tool-head .title { flex:1; font-size:24px; margin:0; word-break:break-all; margin-right:15px; display:flex; flex-wrap:wrap; align-items:center; }
+        .description { background: var(--bg-color-dark2); padding:10px; margin-bottom:20px; border-radius:4px; }
+        .loading { width:100%; text-align:center; padding:40px 0; }
+        .loading svg { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .loading-error { padding:30px 20px; text-align:center; }
+        .loading-error p { margin:6px 0; }
+        .loading-error .err-title { color:#e74c3c; font-size:16px; font-weight:600; }
+        .loading-error .err-desc { color:#666; font-size:13px; }
+        .loading-error button { margin-top:15px; padding:8px 20px; background: var(--primary-color); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; }
+        .op-model { margin-bottom:15px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+        .op-model button { display:inline-flex; align-items:center; justify-content:center; padding:8px 15px; font-size:13px; border-radius:4px; cursor:pointer; border:none; outline:none; line-height:1.4; white-space:nowrap; background-color: var(--primary-color); color:#fff; }
+        .op-model button:hover { background-color:#259b5c; }
+        .op-model button.secondary { background-color:#fff; color: var(--primary-color); border:1px solid var(--primary-color); }
+        .op-model button.secondary:hover { background-color: rgba(var(--primary-rgb), 0.05); }
+        .op-model button.active { background-color:#259b5c; color:#fff; border-color:#259b5c; }
+        .op-model button:disabled { opacity:0.6; cursor:not-allowed; }
+        .op-model .btn-group { display:flex; flex-wrap:wrap; gap:4px; }
+        .op-model .sep-vertical { width:1px; height:22px; background: var(--border-color-dark2); margin:0 4px; }
+        #markdown-editor { margin-bottom:10px; }
+        .vditor--fullscreen { z-index:10000 !important; }
+        .vditor pre { border: unset !important; }
+        .vditor-img { z-index:10001 !important; }
+        /* 不再对 .vditor-reset 做 revert，让 .export-style 完全接管 */
+        #markdown-editor.md-view-edit .vditor-sv__sv { width:100% !important; }
+        #markdown-editor.md-view-edit .vditor-preview { display:none !important; }
+        #markdown-editor.md-view-preview .vditor-sv__sv { display:none !important; }
+        #markdown-editor.md-view-preview .vditor-preview { width:100% !important; }
+        #fallbackEditor { width:100%; min-height:400px; padding:15px; border:1px solid var(--border-color); border-radius:4px; font-family:'SF Mono',Menlo,Monaco,Consolas,monospace; font-size:13.5px; line-height:1.6; resize:vertical; outline:none; background: var(--bg-color); color: var(--text-color); }
+        .content { line-height:26px; word-break:break-word; overflow:hidden; }
+        .content h3 { font-size:18px; margin:15px 0 10px 0; }
+        .content p { margin:0; padding:0; margin-bottom:10px; text-align:start; }
+        .layer-msg { background: rgba(0,0,0,.7); border-radius:3px; color:#fff; font-size:14px; opacity:1; padding:10px 18px; position:fixed; top:50%; left:50%; transform: translate(-50%,-50%); z-index:3000; transition: opacity 0.3s; pointer-events:none; }
+        .tooltip-wrap { position:relative; display:inline-block; }
+        .tooltip-wrap .tooltip-text { visibility:hidden; opacity:0; background: rgba(0,0,0,0.8); color:#fff; font-size:12px; padding:6px 10px; border-radius:4px; position:absolute; bottom:120%; left:50%; transform:translateX(-50%); white-space:nowrap; z-index:100; pointer-events:none; transition: opacity 0.2s; }
+        .tooltip-wrap:hover .tooltip-text { visibility:visible; opacity:1; }
+        .footer { text-align:center; padding:20px 0; color: var(--text-gray-color); font-size:12px; }
+        .footer a { color: var(--text-gray-color); }
+        .footer a:hover { color: var(--primary-color); }
+        .vditor-sv__toolbar-tab > div, .vditor-sv__toolbar-tab > span, .vditor-sv__toolbar-tab > button { padding:5px 12px !important; margin:0 2px !important; border-radius:5px !important; cursor:pointer !important; font-size:13px !important; transition: all 0.15s ease !important; }
+        .vditor-sv__toolbar-tab > div:hover, .vditor-sv__toolbar-tab > span:hover, .vditor-sv__toolbar-tab > button:hover { background: rgba(42,173,103,0.1) !important; color: var(--primary-color) !important; }
+        .vditor-sv__toolbar-tab > div[class*="current"], .vditor-sv__toolbar-tab > span[class*="current"], .vditor-sv__toolbar-tab > button[class*="current"], .vditor-sv__toolbar-tab > div[class*="active"], .vditor-sv__toolbar-tab > span[class*="active"], .vditor-sv__toolbar-tab > button[class*="active"] { background: var(--primary-color) !important; color:#fff !important; font-weight:600 !important; }
+        #imgRenderStage { position:fixed; left:-99999px; top:0; z-index:-1; background:#fff; box-sizing:border-box; }
+        #imgRenderStage.is-dark { background:#1a1a1a; }
+        #imgRenderStage, #imgRenderStage * { overflow: visible !important; overflow-x: visible !important; overflow-y: visible !important; max-height:none !important; scrollbar-width:none !important; -ms-overflow-style:none !important; }
+        #imgRenderStage *::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
+        @media (max-width: 768px) {
+            .nav-top { padding:0 10px; height:50px; line-height:50px; }
+            .main-body { padding:60px 10px 10px 10px; }
+            .card-model .card-body { padding:10px; }
+            .tool-head .title { font-size:20px; }
+            .op-model { gap:4px; }
+            .op-model button { padding:6px 10px; font-size:12px; }
+            .op-model .sep-vertical { display:none; }
+        }
+
+        /* ============================================================
+           ★★★ 统一视觉样式 ★★★
+           同一个类 `.export-style` 同时作用于：
+           - 导出图片的隐藏 stage
+           - Vditor 预览区的 .vditor-reset（通过 JS 动态加类）
+           ============================================================ */
+        .export-style {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+            font-size:15px !important;
+            line-height:1.65 !important;
+            color:#1e293b !important;
+            background: transparent;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+        /* 深色模式：同时作用于预览区和导出 stage */
+        [data-theme="dark"] .export-style { color:#cbd5e6 !important; }
+
+        .export-style h1, .export-style h2, .export-style h3, .export-style h4, .export-style h5, .export-style h6 {
+            font-weight:600 !important; line-height:1.35 !important; color:#0f172a !important;
+            border-bottom:1px solid #e9edf2 !important; padding-bottom:0.3em !important;
+            margin:1.2em 0 0.6em 0 !important;
+        }
+        [data-theme="dark"] .export-style h1, [data-theme="dark"] .export-style h2, [data-theme="dark"] .export-style h3,
+        [data-theme="dark"] .export-style h4, [data-theme="dark"] .export-style h5, [data-theme="dark"] .export-style h6 {
+            color:#e2e8f0 !important; border-bottom-color:#334155 !important;
+        }
+        .export-style h1 { font-size:1.9em !important; margin-top:0.6em !important; }
+        .export-style h2 { font-size:1.5em !important; }
+        .export-style h3 { font-size:1.25em !important; }
+        .export-style h4 { font-size:1.1em !important; }
+        .export-style h5 { font-size:1em !important; }
+        .export-style h6 { font-size:0.92em !important; }
+
+        .export-style p { margin:0.8em 0 !important; line-height:1.65 !important; text-align:justify !important; }
+        .export-style ul, .export-style ol { margin:0.4em 0 0.4em 1.6em !important; padding-left:0 !important; }
+        .export-style li { margin:0.25em 0 !important; line-height:1.65 !important; list-style-position: outside !important; }
+        .export-style li > ul, .export-style li > ol { margin-top:0.2em !important; margin-bottom:0 !important; }
+        .export-style ul { list-style-type: disc !important; }
+        .export-style ol { list-style-type: decimal !important; }
+        .export-style input[type="checkbox"] { margin-right:6px !important; vertical-align:middle; position:relative; top:-1px; }
+
+        .export-style blockquote {
+            margin:1em 0 !important; padding:2px 0 2px 1em !important;
+            border-left:4px solid #e9edf2 !important; color:#64748b !important;
+            background: rgba(0,0,0,0.01) !important; font-style: normal !important;
+        }
+        [data-theme="dark"] .export-style blockquote {
+            border-left-color:#334155 !important; color:#94a3b8 !important;
+            background: rgba(255,255,255,0.02) !important;
+        }
+        .export-style blockquote p { margin:0.3em 0 !important; }
+
+        .export-style code {
+            font-family: "SF Mono", Menlo, Monaco, Consolas, "Cascadia Code", "Liberation Mono", monospace !important;
+            font-size:0.88em !important; background:#f6f8fa !important; color:#d14 !important;
+            padding:0.2em 0.4em !important; border-radius:6px !important; border:none !important;
+            word-break: break-word !important;
+        }
+        [data-theme="dark"] .export-style code { background:#1e293b !important; color:#f87171 !important; }
+
+        .export-style pre {
+            margin:1em 0 !important; padding:14px 16px !important; background:#f6f8fa !important;
+            border:none !important; border-radius:12px !important; line-height:1.55 !important;
+            white-space: pre-wrap !important; word-break: break-word !important;
+            overflow-wrap: break-word !important; max-width:100% !important; box-sizing: border-box !important;
+        }
+        [data-theme="dark"] .export-style pre { background:#1e293b !important; }
+        .export-style pre code {
+            background: transparent !important; color:#1e293b !important; padding:0 !important;
+            border-radius:0 !important; font-size:0.9em !important; line-height:1.55 !important;
+            border:none !important;
+            font-family: "SF Mono", Menlo, Monaco, Consolas, "Cascadia Code", "Liberation Mono", monospace !important;
+            white-space: pre-wrap !important; word-break: break-word !important; overflow-wrap: break-word !important;
+        }
+        [data-theme="dark"] .export-style pre code { color:#e2e8f0 !important; }
+
+        .export-style table {
+            border-collapse: collapse !important; width:100% !important; max-width:100% !important;
+            margin:1em 0 !important; table-layout: fixed !important; box-sizing: border-box !important;
+        }
+        .export-style th, .export-style td {
+            border:1px solid #e9edf2 !important; padding:10px 14px !important;
+            vertical-align: top !important; text-align: left !important;
+            word-break: break-word !important; overflow-wrap: break-word !important;
+            white-space: normal !important; font-size:14px !important; line-height:1.55 !important;
+            box-sizing: border-box !important;
+        }
+        [data-theme="dark"] .export-style th, [data-theme="dark"] .export-style td { border-color:#334155 !important; }
+        .export-style th { background:#f8fafc !important; font-weight:600 !important; }
+        [data-theme="dark"] .export-style th { background:#334155 !important; }
+
+        .export-style hr { border:none !important; border-top:1px solid #e9edf2 !important; margin:1.5em 0 !important; height:0 !important; }
+        [data-theme="dark"] .export-style hr { border-top-color:#334155 !important; }
+
+        .export-style img { max-width:100% !important; height: auto !important; border-radius:8px !important; margin:0.5em 0 !important; display: block !important; }
+
+        .export-style a { color:#0366d6 !important; text-decoration: none !important; word-break: break-word !important; overflow-wrap: break-word !important; }
+        .export-style a:hover { text-decoration: underline !important; }
+        [data-theme="dark"] .export-style a { color:#60a5fa !important; }
+
+        .export-style .footnotes { margin-top:2em !important; font-size:0.9em !important; color:#64748b !important; }
+        [data-theme="dark"] .export-style .footnotes { color:#94a3b8 !important; }
+        .export-style .footnote-ref { font-size:0.75em !important; vertical-align: super !important; font-weight: bold !important; }
+        .export-style .footnote-backref { text-decoration: none !important; margin-left:4px !important; }
+
+        .export-style .katex-display { margin:1em 0 !important; overflow-x: visible !important; overflow-y: visible !important; max-width:100% !important; }
+        .export-style strong { font-weight:600 !important; }
+        .export-style em { font-style: italic !important; }
+        .export-style del { opacity:0.7 !important; }
+
+        /* ★★★ Vditor 内部包裹层的微调：避免它干扰 .export-style 的效果 ★★★ */
+        /* 让预览区的 vditor-reset 内层间距不叠加 */
+        #markdown-editor .vditor-sv__preview,
+        #markdown-editor .vditor-preview {
+            padding: 20px !important;
+            background: var(--bg-color) !important;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="main-nav">
+        <div class="nav-top">
+            <a href="#" class="logo">
+                <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="36" height="36" rx="8" fill="#2AAD67"/><text x="18" y="24" text-anchor="middle" fill="white" font-size="18" font-weight="bold">M</text></svg>
+                <span>ToolOnline.net</span>
+            </a>
+            <div class="right">
+                <button class="theme-btn" id="themeToggleNav" title="切换主题">
+                    <svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="main-body">
+        <div class="card-model">
+            <div class="card-body">
+                <div class="tool-head"><h1 class="title">Markdown在线编辑器，Markdown转Word/Html/Pdf/图片</h1></div>
+                <div class="description">免费 · 免安装 · 打开即用 —— 左边写作，右边实时预览，一键导出 Word / PDF / HTML / 长图片</div>
+                <div class="loading" id="loading"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2AAD67" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg></div>
+                <div class="op-model" id="opButtons" style="display:none;">
+                    <div class="btn-group">
+                        <button onclick="document.getElementById('flFile').click()">导入MD</button>
+                        <button onclick="exportMd()">导出MD</button>
+                        <button onclick="exportHtml()">导出HTML</button>
+                        <button onclick="exportDoc()">导出Word</button>
+                        <div class="tooltip-wrap"><button onclick="exportPdf()">导出PDF</button><span class="tooltip-text">点击后弹出打印窗口，在目标位置选择"另存为PDF"</span></div>
+                        <div class="tooltip-wrap"><button onclick="exportImage()" id="exportImgBtn">导出图片</button><span class="tooltip-text">导出为 PNG 图片（与预览完全一致）</span></div>
+                    </div>
+                    <div class="sep-vertical"></div>
+                    <div class="btn-group">
+                        <button onclick="copySource()" class="secondary">复制源码</button>
+                        <button onclick="copyPreview()" class="secondary">复制预览</button>
+                    </div>
+                    <div class="sep-vertical"></div>
+                    <div class="btn-group">
+                        <button onclick="setViewMode('split')" class="secondary active" id="btnViewSplit">分屏</button>
+                        <button onclick="setViewMode('edit')" class="secondary" id="btnViewEdit">纯编辑</button>
+                        <button onclick="setViewMode('preview')" class="secondary" id="btnViewPreview">纯预览</button>
+                        <button onclick="toggleFullscreen()" class="secondary" id="btnFullscreen">全屏</button>
+                    </div>
+                    <div class="sep-vertical"></div>
+                    <div class="btn-group">
+                        <button onclick="toggleTheme()" class="secondary">深色/浅色</button>
+                        <button onclick="clearFormat()" class="secondary">清除格式</button>
+                        <button onclick="loadSample()" class="secondary">示例</button>
+                        <button onclick="clearAll()" class="secondary">清空</button>
+                    </div>
+                </div>
+                <input id="flFile" name="flFile" type="file" accept=".markdown,.md" style="display:none;" />
+                <div id="markdown-editor"></div>
+                <div class="divider"></div>
+                <div class="content">
+                    <h3>介绍</h3>
+                    <p>墨客md 是一款免费的 Markdown 编辑器：左边写作，右边实时预览，写完一键导出 Word 文档、PDF 文件、网页或长图片。</p>
+                    <p>无需安装、无需注册，打开就能用。内容自动保存在你自己的浏览器里，关掉页面也不会丢。</p>
+                    <p>支持表格、代码高亮、数学公式、任务清单，还有护眼的深色夜间模式。</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer"><a href="https://beian.miit.gov.cn/" target="_blank">湘ICP备2024076054号</a></div>
+    </div>
+    <div id="imgRenderStage"></div>
+    <script src="https://cdn.jsdelivr.net/npm/vditor@3.11.0/dist/index.min.js"></script>
+    <script>
+    (function() {
+        'use strict';
+        var vditor = null;
+        var loaded = false;
+        var currentTheme = 'light';
+        var currentViewMode = 'split';
+        var saveTimer = null;
+        var exporting = false;
+        var fallbackMode = false;
+        var initTimeoutId = null;
+        var translateTimer = null;
+        var translateObserver = null;
+        var lastSavedContent = null;
+        var contentReady = false; // 首次内容初始化完成前禁止写备份，避免把已有备份覆盖为空
+
+        function saveBackup(content) {
+            try {
+                var val = content !== undefined ? content : getMd();
+                localStorage.setItem('md_backup', val);
+                lastSavedContent = val;
+            } catch(e) {}
+        }
+        function loadBackup() { try { return localStorage.getItem('md_backup'); } catch(e) { return null; } }
+
+        window.addEventListener('beforeunload', function() { if (contentReady || fallbackMode) saveBackup(getMd()); });
+        document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden' && (contentReady || fallbackMode)) saveBackup(); });
+
+        // ============================================================
+        // ★★★ 新增：给预览区的 vditor-reset 加 .export-style 类 ★★★
+        // 让预览区与导出图片使用同一套视觉样式
+        // ============================================================
+        function applyExportStyleClass() {
+            try {
+                var nodes = document.querySelectorAll(
+                    '#markdown-editor .vditor-sv__preview .vditor-reset, ' +
+                    '#markdown-editor .vditor-preview .vditor-reset, ' +
+                    '#markdown-editor .vditor-ir .vditor-reset, ' +
+                    '#markdown-editor .vditor-wysiwyg .vditor-reset'
+                );
+                nodes.forEach(function(n) {
+                    if (!n.classList.contains('export-style')) {
+                        n.classList.add('export-style');
+                    }
+                });
+            } catch(e) {}
+        }
+
+        var TEXT_MAP = {
+            'Desktop': '桌面端', 'Tablet': '平板', 'Mobile/Wechat': '手机/微信',
+            'Mobile / Wechat': '手机/微信', 'Mobile/WeChat': '手机/微信', 'Mobile / WeChat': '手机/微信',
+            'Mobile': '手机', 'Wechat': '微信', 'WeChat': '微信',
+            'Both': '双栏', 'Edit': '编辑', 'Preview': '预览', 'SV': '源码',
+            'IR': '即时', 'WYSIWYG': '所见即所得', 'Split': '分屏',
+            'Refresh': '刷新', 'Help': '帮助', 'Fullscreen': '全屏',
+            'Undo': '撤销', 'Redo': '重做'
+        };
+
+        function translateVditorUI() {
+            var root = document.getElementById('markdown-editor');
+            if (!root) return;
+            // ★ 用户正文保护区：源码编辑区（contenteditable）与预览区（.vditor-reset 等）绝不能被翻译改写，
+            //   否则正文中恰好等于英文词条（如 Edit / Desktop / Refresh）的行会被永久写坏进文档。
+            function isUserContent(el) {
+                while (el && el !== root) {
+                    if (el.nodeType === 1) {
+                        if (el.getAttribute && el.getAttribute('contenteditable') === 'true') return true;
+                        if (el.classList && (el.classList.contains('vditor-reset') || el.classList.contains('vditor-wysiwyg') || el.classList.contains('vditor-ir'))) return true;
+                    }
+                    el = el.parentElement;
+                }
+                return false;
+            }
+            try {
+                var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+                var node;
+                while ((node = walker.nextNode())) {
+                    if (isUserContent(node.parentElement)) continue;
+                    var raw = node.textContent;
+                    var trimmed = raw.trim();
+                    if (TEXT_MAP[trimmed]) {
+                        var leading = raw.match(/^\s*/)[0];
+                        var trailing = raw.match(/\s*$/)[0];
+                        node.textContent = leading + TEXT_MAP[trimmed] + trailing;
+                    }
+                }
+            } catch(e) {}
+            try {
+                root.querySelectorAll('[title]').forEach(function(el) {
+                    if (isUserContent(el)) return;
+                    var t = el.getAttribute('title');
+                    if (TEXT_MAP[t]) el.setAttribute('title', TEXT_MAP[t]);
+                });
+                root.querySelectorAll('[placeholder]').forEach(function(el) {
+                    if (isUserContent(el)) return;
+                    var p = el.getAttribute('placeholder');
+                    if (TEXT_MAP[p]) el.setAttribute('placeholder', TEXT_MAP[p]);
+                });
+            } catch(e) {}
+        }
+
+        function startTranslateMechanism() {
+            if (translateTimer) { clearInterval(translateTimer); translateTimer = null; }
+            if (translateObserver) { try { translateObserver.disconnect(); } catch(e) {} translateObserver = null; }
+
+            translateVditorUI();
+            applyExportStyleClass();  // ★ 首次应用
+            setTimeout(function() { translateVditorUI(); applyExportStyleClass(); }, 200);
+            setTimeout(function() { translateVditorUI(); applyExportStyleClass(); }, 800);
+
+            try {
+                var root = document.getElementById('markdown-editor');
+                if (root) {
+                    translateObserver = new MutationObserver(function(mutations) {
+                        var need = false;
+                        for (var i = 0; i < mutations.length; i++) {
+                            if (mutations[i].addedNodes.length > 0) { need = true; break; }
+                        }
+                        if (need) {
+                            clearTimeout(translateObserver._t);
+                            translateObserver._t = setTimeout(function() {
+                                translateVditorUI();
+                                applyExportStyleClass();  // ★ 每次 DOM 变化都应用一次
+                            }, 50);
+                        }
+                    });
+                    translateObserver.observe(root, { childList: true, subtree: true, characterData: true });
+                }
+            } catch(e) {
+                translateTimer = setInterval(function() { translateVditorUI(); applyExportStyleClass(); }, 2000);
+            }
+        }
+
+        function showInitError(title, desc) {
+            var loading = document.getElementById('loading');
+            loading.classList.add('loading-error');
+            loading.innerHTML = '<p class="err-title">⚠️ ' + title + '</p><p class="err-desc">' + desc + '</p><button onclick="location.reload()">刷新页面</button>';
+        }
+
+        function fallbackToTextarea(reason) {
+            if (fallbackMode) return;
+            fallbackMode = true;
+            console.warn('[Vditor 降级]', reason);
+            var container = document.getElementById('markdown-editor');
+            container.innerHTML = '<textarea id="fallbackEditor" placeholder="编辑器加载失败，已切换为简易模式。"></textarea>';
+            var ta = document.getElementById('fallbackEditor');
+            var saved = loadBackup();
+            ta.value = (saved !== null) ? saved : getSample();
+            ta.addEventListener('input', function() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(function() { saveBackup(ta.value); }, 1200);
+            });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('opButtons').style.display = 'flex';
+            setTimeout(function() { showToast('已切换简易模式：' + reason); }, 300);
+        }
+
+        function initVditor() {
+            contentReady = false;
+            if (translateTimer) { clearInterval(translateTimer); translateTimer = null; }
+            if (translateObserver) { try { translateObserver.disconnect(); } catch(e) {} translateObserver = null; }
+
+            if (typeof Vditor === 'undefined') {
+                showInitError('Vditor 库加载失败', '可能是网络问题，请检查网络后刷新页面。');
+                fallbackToTextarea('Vditor 库未加载');
+                return;
+            }
+            initTimeoutId = setTimeout(function() {
+                if (!loaded && !fallbackMode) {
+                    showInitError('编辑器加载超时', '可能是 CDN 网络问题，请刷新页面重试。');
+                    fallbackToTextarea('加载超时');
+                }
+            }, 8000);
+
+            var h = Math.max(400, window.innerHeight - 400);
+            try {
+                vditor = new Vditor('markdown-editor', {
+                    height: h,
+                    cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.11.0',
+                    lang: 'zh_CN',
+                    mode: 'sv',
+                    theme: 'classic',
+                    toolbar: [],
+                    preview: {
+                        delay: 300,
+                        theme: { path: 'https://cdn.jsdelivr.net/npm/vditor@3.11.0/dist/css/content-theme' },
+                        hljs: { enable: true, style: 'github', lineNumber: false },
+                        math: { engine: 'KaTeX', inlineDigit: true },
+                        markdown: { toc: true, mark: true, footnotes: true, autoSpace: true, media: true }
+                    },
+                    cache: { enable: false },
+                    hint: { emojiPath: 'https://cdn.jsdelivr.net/npm/vditor@3.11.0/dist/images/emoji' },
+                    upload: {
+                        accept: 'image/jpeg,image/png,image/gif,image/jpg,image/bmp,image/webp',
+                        handler: function(files) {
+                            for (var i = 0; i < files.length; i++) {
+                                (function(file) {
+                                    var name = file.name;
+                                    var reader = new FileReader();
+                                    reader.onload = function(e) { vditor.insertValue('![' + name + '](' + e.target.result + ')'); };
+                                    reader.readAsDataURL(file);
+                                })(files[i]);
+                            }
+                        }
+                    },
+                    input: function(value) {
+                        clearTimeout(saveTimer);
+                        saveTimer = setTimeout(function() { saveBackup(value); }, 1200);
+                    },
+                    after: function() {
+                        loaded = true;
+                        if (initTimeoutId) { clearTimeout(initTimeoutId); initTimeoutId = null; }
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('opButtons').style.display = 'flex';
+
+                        var content = lastSavedContent;
+                        if (content === null) content = loadBackup();
+                        if (content !== null) { vditor.setValue(content); } else { vditor.setValue(getSample()); }
+                        contentReady = true;
+                        // ★ 恢复退出全屏/重初始化之前的视图模式（原为写死 'split'）
+                        applyViewMode(currentViewMode);
+                        startTranslateMechanism();
+                    }
+                });
+            } catch(err) {
+                console.error('Vditor 初始化异常:', err);
+                if (initTimeoutId) { clearTimeout(initTimeoutId); initTimeoutId = null; }
+                showInitError('编辑器初始化失败', err.message || '未知错误');
+                fallbackToTextarea('初始化异常');
+            }
+        }
+
+        function getMd() {
+            if (fallbackMode) { var ta = document.getElementById('fallbackEditor'); return ta ? ta.value : ''; }
+            return vditor ? vditor.getValue() : '';
+        }
+        function setMd(value) {
+            if (fallbackMode) {
+                var ta = document.getElementById('fallbackEditor');
+                if (ta) ta.value = value;
+                saveBackup(value);
+                return;
+            }
+            if (vditor) {
+                vditor.setValue(value);
+                saveBackup(value);
+                // 应用一次样式（setValue 会触发重新渲染）
+                setTimeout(applyExportStyleClass, 100);
+                setTimeout(applyExportStyleClass, 400);
+            }
+        }
+        function getHtml() {
+            if (fallbackMode) return simpleMarkdownToHtml(getMd());
+            return vditor ? vditor.getHTML() : '';
+        }
+
+        function simpleMarkdownToHtml(md) {
+            var lines = md.split('\n');
+            var html = '';
+            var inCode = false, codeBuf = [];
+            var inList = false, listType = 'ul';
+            var inQuote = false;
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                if (line.startsWith('```')) {
+                    if (!inCode) { inCode = true; codeBuf = []; }
+                    else { html += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>'; inCode = false; codeBuf = []; }
+                    continue;
+                }
+                if (inCode) { codeBuf.push(line); continue; }
+                if (line.trim() === '') {
+                    if (inList) { html += '</' + listType + '>'; inList = false; }
+                    if (inQuote) { html += '</blockquote>'; inQuote = false; }
+                    continue;
+                }
+                var m;
+                if ((m = line.match(/^(#{1,6})\s+(.*)$/))) {
+                    if (inList) { html += '</' + listType + '>'; inList = false; }
+                    if (inQuote) { html += '</blockquote>'; inQuote = false; }
+                    var lvl = m[1].length;
+                    html += '<h' + lvl + '>' + inline(m[2]) + '</h' + lvl + '>';
+                } else if (/^[\-\*\_]{3,}\s*$/.test(line)) {
+                    if (inList) { html += '</' + listType + '>'; inList = false; }
+                    if (inQuote) { html += '</blockquote>'; inQuote = false; }
+                    html += '<hr>';
+                } else if ((m = line.match(/^\s*>\s+(.*)$/))) {
+                    if (inList) { html += '</' + listType + '>'; inList = false; }
+                    if (!inQuote) { html += '<blockquote>'; inQuote = true; }
+                    html += '<p>' + inline(m[1]) + '</p>';
+                } else if ((m = line.match(/^\s*[\-\*\+]\s+(.*)$/))) {
+                    if (inQuote) { html += '</blockquote>'; inQuote = false; }
+                    if (!inList || listType !== 'ul') {
+                        if (inList) html += '</' + listType + '>';
+                        html += '<ul>'; inList = true; listType = 'ul';
+                    }
+                    html += '<li>' + inline(m[1]) + '</li>';
+                } else if ((m = line.match(/^\s*\d+\.\s+(.*)$/))) {
+                    if (inQuote) { html += '</blockquote>'; inQuote = false; }
+                    if (!inList || listType !== 'ol') {
+                        if (inList) html += '</' + listType + '>';
+                        html += '<ol>'; inList = true; listType = 'ol';
+                    }
+                    html += '<li>' + inline(m[1]) + '</li>';
+                } else {
+                    if (inList) { html += '</' + listType + '>'; inList = false; }
+                    if (inQuote) { html += '</blockquote>'; inQuote = false; }
+                    html += '<p>' + inline(line) + '</p>';
+                }
+            }
+            if (inList) html += '</' + listType + '>';
+            if (inQuote) html += '</blockquote>';
+            if (inCode && codeBuf.length) html += '<pre><code>' + esc(codeBuf.join('\n')) + '</code></pre>';
+            return html;
+            function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+            function inline(s) {
+                s = esc(s);
+                s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+                s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+                s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+                s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+                return s;
+            }
+        }
+
+        // Vditor 3.11.0 没有公开的 resize 方法（原 vditor.resize() 调用全部静默失效），改为直接设置容器高度
+        function resizeEditorHeight() {
+            if (fallbackMode || !vditor) return;
+            try { document.getElementById('markdown-editor').style.height = Math.max(400, window.innerHeight - 400) + 'px'; } catch(e) {}
+        }
+
+        function applyViewMode(mode) {
+            currentViewMode = mode;
+            ['btnViewSplit', 'btnViewEdit', 'btnViewPreview'].forEach(function(id) {
+                var b = document.getElementById(id);
+                if (b) b.classList.remove('active');
+            });
+            var activeBtn = document.getElementById(mode === 'split' ? 'btnViewSplit' : mode === 'edit' ? 'btnViewEdit' : 'btnViewPreview');
+            if (activeBtn) activeBtn.classList.add('active');
+            if (fallbackMode) return;
+            var container = document.getElementById('markdown-editor');
+            container.classList.remove('md-view-edit', 'md-view-preview');
+            if (mode === 'edit') container.classList.add('md-view-edit');
+            else if (mode === 'preview') container.classList.add('md-view-preview');
+            if (vditor) { resizeEditorHeight(); }
+            // ★ 切换视图后重新应用样式
+            setTimeout(applyExportStyleClass, 100);
+            setTimeout(applyExportStyleClass, 400);
+        }
+        function setViewMode(mode) {
+            if (fallbackMode && mode === 'preview') { showToast('简易模式不支持预览，请刷新页面重试'); return; }
+            applyViewMode(mode);
+        }
+
+        function toggleFullscreen() {
+            if (fallbackMode) {
+                var ta = document.getElementById('fallbackEditor');
+                if (ta) { if (document.fullscreenElement) document.exitFullscreen(); else if (ta.requestFullscreen) ta.requestFullscreen(); }
+                return;
+            }
+            if (!vditor) return;
+            var isFullscreen = document.body.classList.contains('md-fullscreen');
+            if (isFullscreen) {
+                document.body.classList.remove('md-fullscreen');
+                saveBackup(getMd());
+                try { vditor.destroy(); } catch(e) {}
+                initVditor();
+            } else {
+                saveBackup(getMd());
+                document.body.classList.add('md-fullscreen');
+                var rootEl = document.documentElement;
+                if (rootEl.requestFullscreen) rootEl.requestFullscreen();
+                else if (rootEl.webkitRequestFullscreen) rootEl.webkitRequestFullscreen();
+                else if (rootEl.msRequestFullscreen) rootEl.msRequestFullscreen();
+            }
+        }
+        document.addEventListener('fullscreenchange', function() { if (!document.fullscreenElement) document.body.classList.remove('md-fullscreen'); });
+
+        document.getElementById('flFile').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var name = file.name;
+            var ext = name.substring(name.lastIndexOf('.')).toLowerCase();
+            if (ext === '.md' || ext === '.markdown') {
+                var reader = new FileReader();
+                reader.onload = function(ev) { setMd(ev.target.result); showToast('已导入：' + name); };
+                reader.readAsText(file);
+            } else { showToast('请选择 .md 或 .markdown 文件'); }
+            e.target.value = null;
+        });
+
+        function exportMd() { var c = getMd(); if (!c) { showToast('内容为空'); return; } saveAs(new Blob([c], { type:'text/markdown;charset=utf-8' }), 'markdown_' + getTimeStr() + '.md'); showToast('已导出 Markdown'); }
+        function exportHtml() { var html = '<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Markdown 文档</title><style>body{font-family:Microsoft YaHei,Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,SimSun,sans-serif;font-size:14px;line-height:1.6;max-width:900px;margin:0 auto;padding:20px;color:#333;}table{border-collapse:collapse;width:100%;table-layout:fixed;}table td,table th{border:1px solid #ccc;padding:8px 12px;text-align:left;word-break:break-word;overflow-wrap:break-word;vertical-align:top;}table th{background-color:#f5f5f5;font-weight:600;}pre{background:#f5f5f5;padding:10px;border-radius:4px;overflow:auto;white-space:pre-wrap;word-break:break-word;}code{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:13px;}img{max-width:100%;}blockquote{border-left:4px solid #ddd;padding-left:15px;color:#666;margin:10px 0;}</style></head><body>' + getHtml() + '</body></html>'; saveAs(new Blob(['\ufeff' + html], { type:'text/html;charset=utf-8' }), 'markdown_' + getTimeStr() + '.html'); showToast('已导出 HTML'); }
+        function exportDoc() { var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8" /><title>Markdown 文档</title><style>body{font-family:Microsoft YaHei,sans-serif;font-size:14px;line-height:1.6;color:#333;}table{border-collapse:collapse;width:100%;table-layout:fixed;}table td,table th{border:1px solid #ccc;padding:8px 12px;text-align:left;word-break:break-word;overflow-wrap:break-word;vertical-align:top;}table th{background-color:#f5f5f5;font-weight:600;}pre{background:#f5f5f5;padding:10px;border-radius:4px;white-space:pre-wrap;word-break:break-word;}code{font-family:Menlo,Monaco,Consolas,monospace;font-size:13px;}img{max-width:100%;}blockquote{border-left:4px solid #ddd;padding-left:15px;color:#666;margin:10px 0;}</style></head><body>' + getHtml() + '</body></html>'; saveAs(new Blob(['\ufeff' + html], { type:'application/msword;charset=utf-8' }), 'markdown_' + getTimeStr() + '.doc'); showToast('已导出 Word'); }
+        function exportPdf() { var html = '<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8" /><title>Markdown 文档</title><style>body{font-family:Microsoft YaHei,sans-serif;font-size:14px;line-height:1.6;max-width:900px;margin:0 auto;padding:20px;color:#333;}table{border-collapse:collapse;width:100%;table-layout:fixed;}table td,table th{border:1px solid #ccc;padding:8px 12px;text-align:left;word-break:break-word;overflow-wrap:break-word;vertical-align:top;}table th{background-color:#f5f5f5;font-weight:600;}pre{background:#f5f5f5;padding:10px;border-radius:4px;white-space:pre-wrap;word-break:break-word;}code{font-family:Menlo,Monaco,Consolas,monospace;font-size:13px;}img{max-width:100%;}blockquote{border-left:4px solid #ddd;padding-left:15px;color:#666;margin:10px 0;}@media print { body { padding: 0; } }</style></head><body>' + getHtml() + '</body></html>'; var win = window.open('', '_blank'); if (!win) { showToast('请允许弹出窗口'); return; } win.document.write(html); win.document.close(); setTimeout(function() { try { win.focus(); win.print(); } catch(e) {} }, 500); showToast('打印窗口已打开，请选择"另存为PDF"'); }
+
+        var html2canvasLoadingPromise = null;
+        function loadHtml2Canvas() { if (window.html2canvas) return Promise.resolve(); if (html2canvasLoadingPromise) return html2canvasLoadingPromise; html2canvasLoadingPromise = new Promise(function(resolve, reject) { var cdns = ['https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js','https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js','https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js']; var idx = 0; var timeout = setTimeout(function() { html2canvasLoadingPromise = null; reject(new Error('html2canvas 加载超时')); }, 10000); function tryLoad() { if (idx >= cdns.length) { clearTimeout(timeout); html2canvasLoadingPromise = null; reject(new Error('所有 CDN 都无法加载 html2canvas')); return; } var s = document.createElement('script'); s.src = cdns[idx]; s.onload = function() { clearTimeout(timeout); resolve(); }; s.onerror = function() { idx++; tryLoad(); }; document.head.appendChild(s); } tryLoad(); }); return html2canvasLoadingPromise; }
+
+        var EXPORT_WIDTH = 800, EXPORT_PADDING = 40;
+
+        function exportImage() {
+            if (exporting) return;
+            if (fallbackMode) { showToast('简易模式不支持导出图片'); return; }
+            var previewEl = findPreviewElement();
+            if (!previewEl) { showToast('预览区未就绪，请稍候再试'); return; }
+            var hasContent = (previewEl.textContent && previewEl.textContent.trim().length > 0) || previewEl.querySelector('img, hr, table, input[type=checkbox], pre, code, .katex, svg');
+            if (!hasContent) { showToast('预览区没有可导出的内容'); return; }
+            exporting = true;
+            var btn = document.getElementById('exportImgBtn');
+            var originalText = btn.textContent;
+            btn.textContent = '加载依赖...';
+            btn.disabled = true;
+            loadHtml2Canvas().then(function() { btn.textContent = '生成中...'; return prepareAndCapture(previewEl); }).then(function(canvas) {
+                return new Promise(function(resolve, reject) { canvas.toBlob(function(blob) { if (!blob) { reject(new Error('生成图片失败')); return; } saveAs(blob, 'markdown_' + getTimeStr() + '.png'); showToast('图片已导出（' + canvas.width + '×' + canvas.height + '）'); resolve(); }, 'image/png', 0.95); });
+            }).catch(function(err) { console.error('[导出图片失败]', err); showToast('导出失败：' + (err.message || '未知错误')); }).finally(function() {
+                var stage = document.getElementById('imgRenderStage');
+                stage.innerHTML = ''; stage.style.width = ''; stage.classList.remove('is-dark');
+                btn.textContent = originalText; btn.disabled = false; exporting = false;
+            });
+        }
+
+        function findPreviewElement() {
+            var sels = ['#markdown-editor .vditor-sv__preview .vditor-reset','#markdown-editor .vditor-preview .vditor-reset','#markdown-editor .vditor-reset[data-type="preview"]','#markdown-editor .vditor-sv__preview','#markdown-editor .vditor-preview'];
+            for (var i = 0; i < sels.length; i++) { var el = document.querySelector(sels[i]); if (el) return el; }
+            return null;
+        }
+
+        function unwrapScrollableTables(root) {
+            root.querySelectorAll('table').forEach(function(table) {
+                var parent = table.parentElement;
+                while (parent && parent !== root) {
+                    var st = null;
+                    try { st = window.getComputedStyle(parent); } catch(e) {}
+                    var ox = st ? st.overflowX : '', ov = st ? st.overflow : '';
+                    if (ox === 'auto' || ox === 'scroll' || ov === 'auto' || ov === 'scroll') {
+                        var grand = parent.parentElement;
+                        if (grand) { while (parent.firstChild) grand.insertBefore(parent.firstChild, parent); grand.removeChild(parent); parent = grand; continue; }
+                    }
+                    parent = parent.parentElement;
+                }
+            });
+        }
+
+        function prepareAndCapture(previewEl) {
+            return new Promise(function(resolve, reject) {
+                var isDark = currentTheme === 'dark';
+                var stage = document.getElementById('imgRenderStage');
+                stage.innerHTML = '';
+                stage.classList.toggle('is-dark', isDark);
+                stage.style.width = EXPORT_WIDTH + 'px';
+                var bg = isDark ? '#1a1a1a' : '#ffffff';
+                stage.style.background = bg;
+                var wrapper = document.createElement('div');
+                wrapper.style.cssText = 'width:' + EXPORT_WIDTH + 'px;box-sizing:border-box;padding:36px ' + EXPORT_PADDING + 'px;background:' + bg + ';overflow:visible;max-height:none;';
+                var clone = previewEl.cloneNode(true);
+                ['.vditor-anchor','.vditor-copy','[data-type="copy"]','.vditor-tip','.vditor-tooltip','.vditor-panel','.vditor-hint','.vditor-sv__marker','.vditor-ir__marker','.vditor-sv__marker--preview','.vditor-resize'].forEach(function(sel) { try { clone.querySelectorAll(sel).forEach(function(n) { n.remove(); }); } catch(e) {} });
+                clone.querySelectorAll('[contenteditable]').forEach(function(n) { n.removeAttribute('contenteditable'); });
+                clone.querySelectorAll('[spellcheck]').forEach(function(n) { n.removeAttribute('spellcheck'); });
+                clone.querySelectorAll('[tabindex]').forEach(function(n) { n.removeAttribute('tabindex'); });
+                unwrapScrollableTables(clone);
+                var unlockSel = '.vditor-reset, .vditor-sv__preview, .vditor-preview, .vditor-sv, .vditor-ir, .vditor-wysiwyg, div, section, article, main, table, thead, tbody, tr';
+                [clone].concat(Array.prototype.slice.call(clone.querySelectorAll(unlockSel))).forEach(function(n) {
+                    try { n.style.overflow = 'visible'; n.style.overflowX = 'visible'; n.style.overflowY = 'visible'; n.style.maxHeight = 'none'; n.style.height = 'auto'; n.style.minHeight = '0'; } catch(e) {}
+                });
+                clone.querySelectorAll('pre').forEach(function(pre) { pre.style.overflow = 'visible'; pre.style.overflowX = 'visible'; pre.style.overflowY = 'visible'; pre.style.whiteSpace = 'pre-wrap'; pre.style.wordBreak = 'break-word'; pre.style.overflowWrap = 'break-word'; pre.style.maxHeight = 'none'; pre.style.maxWidth = '100%'; pre.style.width = 'auto'; pre.style.boxSizing = 'border-box'; });
+                clone.querySelectorAll('pre code').forEach(function(c) { c.style.whiteSpace = 'pre-wrap'; c.style.wordBreak = 'break-word'; c.style.overflowWrap = 'break-word'; c.style.maxWidth = '100%'; });
+                clone.querySelectorAll('table').forEach(function(t) { t.style.width = '100%'; t.style.maxWidth = '100%'; t.style.tableLayout = 'fixed'; t.style.wordBreak = 'break-word'; t.style.overflowWrap = 'break-word'; t.style.overflow = 'visible'; t.style.boxSizing = 'border-box'; });
+                clone.querySelectorAll('th, td').forEach(function(cell) { cell.style.wordBreak = 'break-word'; cell.style.overflowWrap = 'break-word'; cell.style.whiteSpace = 'normal'; cell.style.boxSizing = 'border-box'; cell.style.maxWidth = ''; });
+                clone.style.width = '100%'; clone.style.maxWidth = '100%'; clone.style.margin = '0'; clone.style.padding = '0'; clone.style.boxSizing = 'border-box'; clone.style.overflow = 'visible'; clone.style.height = 'auto'; clone.style.maxHeight = 'none';
+                // 确保带 export-style 类（可能克隆时已带）
+                if (!clone.classList.contains('export-style')) {
+                    clone.classList.add('export-style');
+                }
+                wrapper.appendChild(clone);
+                stage.appendChild(wrapper);
+                waitForImages(stage).then(function() { if (document.fonts && document.fonts.ready) return document.fonts.ready.catch(function() {}); }).then(function() { return new Promise(function(r) { requestAnimationFrame(function() { requestAnimationFrame(r); }); }); }).then(function() {
+                    var finalWidth = EXPORT_WIDTH;
+                    var finalHeight = Math.ceil(wrapper.scrollHeight || wrapper.offsetHeight || 400);
+                    return window.html2canvas(stage, {
+                        backgroundColor: bg, scale: 2, useCORS: true, allowTaint: false, logging: false,
+                        width: finalWidth, height: finalHeight, windowWidth: finalWidth, windowHeight: finalHeight, scrollX: 0, scrollY: 0,
+                        onclone: function(clonedDoc) {
+                            try {
+                                var cs = clonedDoc.getElementById('imgRenderStage');
+                                if (cs) { cs.style.position = 'static'; cs.style.left = '0'; cs.style.top = '0'; cs.style.zIndex = '0'; cs.style.width = EXPORT_WIDTH + 'px'; }
+                                clonedDoc.querySelectorAll('#imgRenderStage, #imgRenderStage *').forEach(function(n) { try { n.style.overflow = 'visible'; n.style.overflowX = 'visible'; n.style.overflowY = 'visible'; n.style.maxHeight = 'none'; } catch(e) {} });
+                                clonedDoc.querySelectorAll('#imgRenderStage table').forEach(function(t) { t.style.width = '100%'; t.style.maxWidth = '100%'; t.style.tableLayout = 'fixed'; t.style.wordBreak = 'break-word'; t.style.overflowWrap = 'break-word'; });
+                                clonedDoc.querySelectorAll('#imgRenderStage th, #imgRenderStage td').forEach(function(cell) { cell.style.wordBreak = 'break-word'; cell.style.overflowWrap = 'break-word'; cell.style.whiteSpace = 'normal'; cell.style.maxWidth = ''; });
+                            } catch(e) {}
+                        }
+                    });
+                }).then(resolve).catch(reject);
+            });
+        }
+
+        function waitForImages(container) {
+            var imgs = container.querySelectorAll('img');
+            if (!imgs.length) return Promise.resolve();
+            var promises = [];
+            for (var i = 0; i < imgs.length; i++) { (function(img) { promises.push(new Promise(function(resolve) { if (img.complete && img.naturalWidth > 0) resolve(); else { img.onload = resolve; img.onerror = resolve; } })); })(imgs[i]); }
+            return Promise.race([Promise.all(promises), new Promise(function(r) { setTimeout(r, 5000); })]);
+        }
+
+        function copySource() { var t = getMd(); if (!t) { showToast('内容为空'); return; } if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(function() { showToast('源码已复制'); }).catch(function() { fallbackCopy(t, '源码已复制'); }); } else fallbackCopy(t, '源码已复制'); }
+        function copyPreview() {
+            var html = getHtml(); var text;
+            if (fallbackMode) { var stage = document.getElementById('imgRenderStage'); stage.innerHTML = html; text = stage.innerText; stage.innerHTML = ''; }
+            else { var pe = findPreviewElement(); text = pe ? pe.innerText : getMd(); }
+            if (navigator.clipboard && window.ClipboardItem) {
+                try { var item = new ClipboardItem({ 'text/html': new Blob([html], { type:'text/html' }), 'text/plain': new Blob([text], { type:'text/plain' }) }); navigator.clipboard.write([item]).then(function() { showToast('预览已复制（富文本）'); }).catch(function() { fallbackCopy(text, '预览文本已复制'); }); return; } catch(e) {}
+            }
+            fallbackCopy(text, '预览文本已复制');
+        }
+        function fallbackCopy(text, successMsg) { var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); showToast(successMsg || '复制成功'); } catch(e) { showToast('复制失败'); } document.body.removeChild(ta); }
+        function clearFormat() {
+            if (!confirm('确定要清除文档中所有 Markdown 格式吗？此操作会修改文档内容。')) return;
+            var md = getMd();
+            var cleaned = md.replace(/\*\*\*(.+?)\*\*\*/g,'$1').replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1').replace(/~~(.+?)~~/g,'$1').replace(/`(.+?)`/g,'$1').replace(/!\[([^\]]*?)\]\([^)]*?\)/g,'$1').replace(/\[([^\]]+?)\]\([^)]*?\)/g,'$1').replace(/^#{1,6}\s+/gm,'').replace(/^\s*>\s+/gm,'').replace(/^\s*[\-\*\+]\s+\[[ xX]\]\s+/gm,'').replace(/^\s*[\-\*\+]\s+/gm,'').replace(/^\s*\d+\.\s+/gm,'').replace(/^[\-\*\_]{3,}\s*$/gm,'');
+            setMd(cleaned); showToast('已清除格式');
+        }
+        function loadSample() { if (confirm('加载示例内容会覆盖当前文档，确定吗？')) { setMd(getSample()); showToast('已加载示例'); } }
+        function clearAll() { if (confirm('确定清空所有内容吗？')) { setMd(''); showToast('已清空'); } }
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+            if (!fallbackMode && vditor && typeof vditor.setTheme === 'function') { try { vditor.setTheme(currentTheme === 'dark' ? 'dark' : 'classic'); } catch(e) {} }
+            var icon = document.getElementById('themeIcon');
+            if (currentTheme === 'dark') icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+            else icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+            try { localStorage.setItem('theme', currentTheme); } catch(e) {}
+            setTimeout(function() { translateVditorUI(); applyExportStyleClass(); }, 100);
+        }
+        document.getElementById('themeToggleNav').addEventListener('click', toggleTheme);
+
+        function showToast(msg) { var el = document.createElement('div'); el.className = 'layer-msg'; el.textContent = msg; document.body.appendChild(el); setTimeout(function() { el.style.opacity = '0'; setTimeout(function() { if (el.parentNode) document.body.removeChild(el); }, 300); }, 1500); }
+        function saveAs(blob, filename) { if (window.navigator.msSaveOrOpenBlob) { window.navigator.msSaveOrOpenBlob(blob, filename); } else { var a = document.createElement('a'); var url = URL.createObjectURL(blob); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100); } }
+        function getTimeStr() { var d = new Date(); function pad(n) { return n < 10 ? '0' + n : '' + n; } return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()); }
+        function getSample() { return '# Markdown 功能演示\n\n## 表格演示\n\n| 闸门 | 作用范围 | 效果 |\n| --- | --- | --- |\n| 连续施加衰减 | 连招中连续第 N 次触发 | 冻结强度按 N 递减 |\n| 物理半径过滤 | 命中点与目标的距离 | 稍远的目标被剔除 |\n| 150 tick 硬上限 | 场景冻结 | 配得再长也会被掐断 |\n| 击杀特写配额 | 终结演出 | 一场约 5 次 |\n\n## 基础语法\n\n**加粗**、*斜体*、~~删除线~~、`行内代码`\n\n## 列表\n\n- 无序列表项\n  - 嵌套项\n- [ ] 待办事项\n- [x] 已完成事项\n\n## 引用\n\n> 这是一段引用文本\n\n## 代码块\n\n```javascript\nfunction hello() {\n    console.log("Hello, Vditor!");\n}\n```\n\n## 数学公式\n\n行内公式：$E = mc^2$\n\n$$\n\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n$$\n\n---\n\n> **提示**：写完点上方按钮，就能导出 Word、PDF 或图片。\n'; }
+
+        window.exportMd = exportMd; window.exportHtml = exportHtml; window.exportDoc = exportDoc; window.exportPdf = exportPdf; window.exportImage = exportImage;
+        window.copySource = copySource; window.copyPreview = copyPreview; window.setViewMode = setViewMode; window.toggleFullscreen = toggleFullscreen;
+        window.toggleTheme = toggleTheme; window.clearFormat = clearFormat; window.loadSample = loadSample; window.clearAll = clearAll;
+
+        try { var savedTheme = localStorage.getItem('theme'); if (savedTheme === 'dark') { currentTheme = 'dark'; document.body.setAttribute('data-theme', 'dark'); document.getElementById('themeIcon').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'; } } catch(e) {}
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initVditor);
+        else initVditor();
+
+        window.addEventListener('resize', function() { if (loaded && !fallbackMode) resizeEditorHeight(); });
+    })();
+    </script>
+    <style>
+        body.md-fullscreen { overflow: hidden; }
+        body.md-fullscreen #markdown-editor { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 9999; background: var(--bg-color); padding: 20px; box-sizing: border-box; }
+        body.md-fullscreen #markdown-editor .vditor { height: calc(100vh - 40px) !important; }
+    </style>
+</body>
+</html>

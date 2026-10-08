@@ -2,6 +2,36 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/)，版本号遵循语义化。
 
+## v1.1.0 — 2026-10-08
+
+仓库改版：从单一编辑器扩展为**「个人自用的本地网页工具」**集合，新增导航首页 `index.html`；墨客md 移至 `markdown-editor.html`，三个新工具入库（重命名为 ASCII 文件名便于链接与部署）：
+
+| 原文件 | 仓库文件 |
+|--------|----------|
+| （新增） | index.html |
+| 墨客md·最终稳定版-3.html | markdown-editor.html |
+| Base64 在线编码解码.html | base64.html |
+| Favicon & ICO 图标在线生成器.html | favicon.html |
+| （本地运行）极简文本处理.html | text-processor.html |
+
+### 修复（新入库工具，均经无头浏览器 24 项断言先红后绿验证）
+
+| 工具 | 问题 | 修复 |
+|------|------|------|
+| Base64 | emoji 等 4 字节 UTF-8 字符编码出非标准 Base64（代理对按两个 UTF-16 单元分别编码），且无法解码其他工具生成的标准编码 | 改用 `TextEncoder` / `TextDecoder` 标准编解码；`\u` 与 `&#` 输出按 Unicode 码点遍历（补充 `\u{...}` 形式） |
+| Favicon | 断网/CDN 失败时「PNG 套装 (.zip)」按钮因 JSZip 未加载而静默失败（仅控制台报错） | 增加明确提示；另防护无固有尺寸的 SVG（`naturalWidth` 为 0 时不再除零） |
+| 文本处理 | 刷新后内容全部丢失 | 增加 localStorage 自动保存（0.8s 防抖；输入与处理按钮 `updateText` 两条路径均触发），刷新/重开自动恢复 |
+
+### 排查后确认无需修改
+
+- 文本处理：`\r` 残留担忧不成立——textarea 的 value 消毒算法自动把 `\r\n` / `\r` 归一为 `\n`（实测验证）。
+- Favicon：ICO 二进制头构造正确（`00 00 01 00` + 条目数 + 256→0 的宽高编码），PNG payload 偏移正确。
+- Base64：URL-safe 符号替换、Hex/字节流输入、图片 DataURI、自动编码、快捷键均正常。
+
+## v1.0.0 — 2026-10-08
+
+首个公开发布版本（墨客md 单编辑器）。
+
 ## v1.0.0 — 2026-10-08
 
 首个公开发布版本。

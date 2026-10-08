@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简文本编辑与统计工具</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --border-color: #dee2e6;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-group-title {
+            width: 100%;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        button {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--bg-color);
+            border-color: #adb5bd;
+        }
+
+        button:active {
+            background-color: #e9ecef;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .stats-table th, .stats-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .stats-table td {
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        .section-title {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 左侧：编辑区与工具栏 -->
+    <div class="panel">
+        <h2>文本编辑与处理</h2>
+        <textarea id="textInput" placeholder="请在此输入或粘贴文本..."></textarea>
+        
+        <div class="toolbar">
+            <div class="btn-group-title">排版优化</div>
+            <button onclick="formatParagraph(true)">一键排版 (段落缩进)</button>
+            <button onclick="formatParagraph(false)">一键排版 (段前不缩进)</button>
+            <button onclick="convertPunctuation('en')">标点: 中转英</button>
+            <button onclick="convertPunctuation('cn')">标点: 英转中</button>
+            <button onclick="addEmptyLines()">增加空行</button>
+
+            <div class="btn-group-title">清理工具</div>
+            <button onclick="clearFormattingAll()">清除格式 (含去缩进/删空行/转标点)</button>
+            <button onclick="removeEmptyLines()">删除多余空行</button>
+            <button onclick="clearHTML()">清除 HTML 标签</button>
+            <button onclick="clearJS()">清除 JS 代码</button>
+            <button onclick="clearATags()">清除 a 标签</button>
+        </div>
+    </div>
+
+    <!-- 右侧：统计区 -->
+    <div class="panel">
+        <h2>字数统计</h2>
+        
+        <h3 class="btn-group-title section-title" style="margin-top: 0;">通用统计</h3>
+        <table class="stats-table">
+            <tr><th>字符数</th><td id="stat-total-chars">0</td></tr>
+            <tr><th>文字数 (不含标点)</th><td id="stat-no-punc">0</td></tr>
+            <tr><th>字符数 (不含换行)</th><td id="stat-no-newlines">0</td></tr>
+            <tr><th>字符数 (不含空格换行)</th><td id="stat-no-spaces">0</td></tr>
+            <tr><th>总行数</th><td id="stat-lines">0</td></tr>
+            <tr><th>非空行数</th><td id="stat-non-empty-lines">0</td></tr>
+            <tr><th>字节数 (UTF-8)</th><td id="stat-utf8">0</td></tr>
+            <tr><th>字节数 (UTF-16)</th><td id="stat-utf16">0</td></tr>
+        </table>
+
+        <h3 class="btn-group-title section-title">英语特定统计</h3>
+        <table class="stats-table">
+            <tr><th>单词数</th><td id="stat-words">0</td></tr>
+            <tr><th>句子数</th><td id="stat-sentences">0</td></tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    const textInput = document.getElementById('textInput');
+
+    // 监听输入实时统计
+    textInput.addEventListener('input', updateStats);
+
+    function updateStats() {
+        const text = textInput.value;
+        if (text.length === 0) {
+            document.querySelectorAll('td[id^="stat-"]').forEach(td => td.innerText = '0');
+            return;
+        }
+
+        const totalChars = text.length;
+        const noPuncChars = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()""''，。！？、；：“”‘’（）《》【】]/g, '').length;
+        const noNewlines = text.replace(/\n/g, '').length;
+        const noSpaces = text.replace(/[\s\n]/g, '').length;
+        
+        const linesArr = text.split('\n');
+        const totalLines = linesArr.length;
+        const nonEmptyLines = linesArr.filter(line => line.trim().length > 0).length;
+
+        const utf8Bytes = new Blob([text]).size;
+        const utf16Bytes = text.length * 2;
+
+        const wordsMatch = text.match(/\b[a-zA-Z0-9]+\b/g);
+        const wordsCount = wordsMatch ? wordsMatch.length : 0;
+        
+        const sentencesMatch = text.split(/[.!?。！？]+/).filter(s => s.trim().length > 0);
+        const sentencesCount = sentencesMatch.length;
+
+        document.getElementById('stat-total-chars').innerText = totalChars;
+        document.getElementById('stat-no-punc').innerText = noPuncChars;
+        document.getElementById('stat-no-newlines').innerText = noNewlines;
+        document.getElementById('stat-no-spaces').innerText = noSpaces;
+        document.getElementById('stat-lines').innerText = totalLines;
+        document.getElementById('stat-non-empty-lines').innerText = nonEmptyLines;
+        document.getElementById('stat-utf8').innerText = utf8Bytes;
+        document.getElementById('stat-utf16').innerText = utf16Bytes;
+        document.getElementById('stat-words').innerText = wordsCount;
+        document.getElementById('stat-sentences').innerText = sentencesCount;
+    }
+
+    function updateText(newText) {
+        textInput.value = newText;
+        updateStats();
+        scheduleSave();
+    }
+
+    // --- 自动保存 ---
+    // 内容只存在本地浏览器 localStorage，输入防抖 0.8s 保存，刷新/重开自动恢复。
+    // 注意：处理按钮走 updateText()，不触发 input 事件，因此两条路径都要调 scheduleSave。
+    var saveTimer = null;
+    function scheduleSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(function() {
+            try { localStorage.setItem('text_tool_backup', textInput.value); } catch (e) {}
+        }, 800);
+    }
+    textInput.addEventListener('input', scheduleSave);
+    try {
+        var savedText = localStorage.getItem('text_tool_backup');
+        if (savedText !== null) textInput.value = savedText;
+    } catch (e) {}
+
+    updateStats();
+
+    // --- 排版优化 ---
+
+    // 增加空行：匹配现有段落间的换行符，每次固定追加1个 \n（扩大一行）
+    function addEmptyLines() {
+        let text = textInput.value;
+        if (text.length === 0) return;
+        // 将1个或多个连续换行替换为"原来的换行数量 + 1个新换行"
+        text = text.replace(/(\n+)/g, '$1\n');
+        updateText(text);
+    }
+
+    function formatParagraph(addIndent) {
+        const text = textInput.value;
+        const lines = text.split('\n').filter(line => line.trim().length > 0);
+        const newLines = lines.map(line => {
+            let trimmed = line.trimStart();
+            return addIndent ? '　　' + trimmed : trimmed;
+        });
+        updateText(newLines.join('\n\n'));
+    }
+
+    function convertPunctuation(target) {
+        let text = textInput.value;
+        const cnToEn = { '，': ',', '。': '.', '！': '!', '？': '?', '：': ':', '；': ';', '（': '(', '）': ')', '“': '"', '”': '"', '‘': "'", '’': "'" };
+        const enToCn = { ',': '，', '.': '。', '!': '！', '?': '？', ':': '：', ';': '；', '(': '（', ')': '）' };
+        
+        if (target === 'en') {
+            text = text.replace(/[，。！？：；（）“”‘’]/g, m => cnToEn[m]);
+        } else {
+            text = text.replace(/[,.!?:;()]/g, m => enToCn[m]);
+        }
+        updateText(text);
+    }
+
+    // --- 清理工具 ---
+
+    // 综合清除格式：清除控制字符 + 段前不缩进 + 删除多余空行 + 中文标点转英文
+    function clearFormattingAll() {
+        let text = textInput.value;
+        
+        // 1. 清除不可见控制字符
+        text = text.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+        
+        // 2. 段前不缩进：清除每一行开头的空白字符（包括全角空格）
+        text = text.split('\n').map(line => line.trimStart()).join('\n');
+        
+        // 3. 删除多余空行 (合并为单换行)
+        text = text.replace(/\n\s*\n/g, '\n');
+        
+        // 4. 中文标点转英文
+        const cnToEn = { '，': ',', '。': '.', '！': '!', '？': '?', '：': ':', '；': ';', '（': '(', '）': ')', '“': '"', '”': '"', '‘': "'", '’': "'" };
+        text = text.replace(/[，。！？：；（）“”‘’]/g, m => cnToEn[m]);
+        
+        updateText(text);
+    }
+
+    function removeEmptyLines() {
+        let text = textInput.value;
+        text = text.replace(/\n\s*\n/g, '\n');
+        updateText(text);
+    }
+
+    function clearHTML() {
+        let text = textInput.value;
+        text = text.replace(/<[^>]*>?/gm, '');
+        updateText(text);
+    }
+
+    function clearJS() {
+        let text = textInput.value;
+        text = text.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        updateText(text);
+    }
+
+    function clearATags() {
+        let text = textInput.value;
+        text = text.replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1');
+        updateText(text);
+    }
+</script>
+
+</body>
+</html>

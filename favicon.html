@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>透明ICO图标生成器 - ICO在线生成制作</title>
+<style>
+:root {
+  --primary: #4f46e5; --primary-hover: #4338ca;
+  --secondary: #059669; --secondary-hover: #047857;
+  --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+  --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280;
+  --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
+  --radius: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans SC","Microsoft YaHei",sans-serif;background:var(--gray-50);color:var(--gray-800);line-height:1.6;min-height:100vh}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:900px;margin:0 auto;padding:30px 16px}
+header{text-align:center;margin-bottom:28px}
+header h1{font-size:1.8rem;font-weight:700;color:var(--gray-900);margin-bottom:6px}
+header p{color:var(--gray-500);font-size:1rem}
+.hidden{display:none!important}
+
+/* Section card */
+.card{background:#fff;border-radius:var(--radius);padding:20px;margin-top:16px;box-shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06)}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.section-header h2{font-size:1.1rem;font-weight:600;color:var(--gray-800)}
+
+/* Dropzone */
+.dropzone{border:2px dashed var(--gray-300);border-radius:var(--radius);padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fff}
+.dropzone:hover,.dropzone.dragover{border-color:var(--primary);background:#eef2ff}
+.dropzone-content{display:flex;flex-direction:column;align-items:center;gap:10px}
+.dropzone-content svg{width:56px;height:56px;stroke:var(--gray-400)}
+.dropzone-text{font-size:1rem;color:var(--gray-600)}
+.dropzone-text span{color:var(--primary);text-decoration:underline;font-weight:500}
+.dropzone-hint{font-size:.85rem;color:var(--gray-400)}
+
+/* Original preview */
+.original-row{display:flex;align-items:center;gap:18px}
+.original-row canvas{max-width:128px;max-height:128px;border:1px solid var(--gray-200);border-radius:8px;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="8" height="8" fill="%23e5e7eb"/><rect x="8" y="8" width="8" height="8" fill="%23e5e7eb"/></svg>')}
+.img-info{display:flex;flex-direction:column;gap:3px;font-size:.9rem;color:var(--gray-500)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border:none;border-radius:8px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-secondary{background:var(--secondary);color:#fff}
+.btn-secondary:hover{background:var(--secondary-hover)}
+.btn-sm{padding:5px 12px;font-size:.82rem}
+.btn-outline{background:transparent;border:1px solid var(--gray-300);color:var(--gray-600)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);background:#eef2ff}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Size grid */
+.size-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.size-check{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:8px;cursor:pointer;transition:all .15s;font-size:.9rem}
+.size-check:hover{border-color:var(--primary);background:#eef2ff}
+.size-check input:checked+span{color:var(--primary);font-weight:600}
+.size-check input{accent-color:var(--primary);width:15px;height:15px}
+.size-presets{display:flex;gap:5px}
+
+/* Background options */
+.bg-options{margin-top:16px}
+.bg-options h3{font-size:1rem;font-weight:600;color:var(--gray-800);margin-bottom:10px}
+.bg-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.bg-row label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.9rem}
+.bg-row input[type=radio]{accent-color:var(--primary)}
+.bg-row input[type=color]{width:36px;height:30px;border:1px solid var(--gray-300);border-radius:6px;cursor:pointer;padding:2px}
+
+/* Preview grid */
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:12px;margin-bottom:18px}
+.preview-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px;border:1px solid var(--gray-200);border-radius:8px;background:#fff}
+.preview-item canvas{image-rendering:pixelated;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="4" height="4" fill="%23e5e7eb"/><rect x="4" y="4" width="4" height="4" fill="%23e5e7eb"/></svg>')}
+.preview-item .lbl{font-size:.8rem;color:var(--gray-500);font-weight:500}
+
+/* Code block */
+.code-block{border-radius:8px}
+.code-block p{font-size:.88rem;color:var(--gray-600);margin-bottom:10px}
+.code-block pre{background:var(--gray-900);color:#e5e7eb;padding:14px;border-radius:6px;overflow-x:auto;font-size:.82rem;line-height:1.7;margin-bottom:10px}
+.code-block code{font-family:'Consolas','Monaco','Courier New',monospace}
+.code-block .tip{font-size:.82rem;color:var(--primary);background:#eef2ff;padding:8px 12px;border-radius:6px;border-left:3px solid var(--primary)}
+
+/* Footer */
+footer{text-align:center;margin-top:30px;padding:20px 0;border-top:1px solid var(--gray-200);color:var(--gray-400);font-size:.82rem}
+footer a{color:var(--gray-500)}
+footer a:hover{color:var(--primary)}
+
+@media(max-width:600px){
+  header h1{font-size:1.4rem}
+  .dropzone{padding:28px 14px}
+  .original-row{flex-direction:column;text-align:center}
+  .btn-row{flex-direction:column}
+  .preview-grid{grid-template-columns:repeat(3,1fr)}
+  .size-grid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Favicon & ICO 图标在线生成器</h1>
+    <p>拖放图片到下方区域，生成多尺寸 .ico 文件 (16–256px)，所有处理在浏览器中完成</p>
+  </header>
+
+  <!-- Dropzone -->
+  <div class="card dropzone" id="dropzone">
+    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/svg+xml,image/webp,image/gif,image/bmp" hidden>
+    <div class="dropzone-content">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p class="dropzone-text">拖放图片到这里，或 <span>点击选择文件</span></p>
+      <p class="dropzone-hint">支持 PNG / JPG / SVG / WebP / GIF / BMP</p>
+    </div>
+  </div>
+
+  <!-- Preview Section -->
+  <div class="card hidden" id="previewSection">
+    <div class="section-header">
+      <h2>原始图片</h2>
+      <button class="btn btn-sm btn-outline" id="clearBtn">清除</button>
+    </div>
+    <div class="original-row">
+      <canvas id="originalCanvas"></canvas>
+      <div class="img-info">
+        <span id="imageSize"></span>
+        <span id="imageName"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="card hidden" id="settingsSection">
+    <div class="section-header">
+      <h2>选择尺寸</h2>
+      <div class="size-presets">
+        <button class="btn btn-sm btn-outline" data-preset="all">全选</button>
+        <button class="btn btn-sm btn-outline" data-preset="common">常用</button>
+        <button class="btn btn-sm btn-outline" data-preset="none">取消</button>
+      </div>
+    </div>
+    <div class="size-grid" id="sizeGrid">
+      <label class="size-check"><input type="checkbox" value="16" checked><span>16px</span></label>
+      <label class="size-check"><input type="checkbox" value="32" checked><span>32px</span></label>
+      <label class="size-check"><input type="checkbox" value="48" checked><span>48px</span></label>
+      <label class="size-check"><input type="checkbox" value="64" checked><span>64px</span></label>
+      <label class="size-check"><input type="checkbox" value="128" checked><span>128px</span></label>
+      <label class="size-check"><input type="checkbox" value="256" checked><span>256px</span></label>
+    </div>
+    <div class="bg-options">
+      <h3>背景选项</h3>
+      <div class="bg-row">
+        <label><input type="radio" name="bg" value="transparent" checked> 透明背景</label>
+        <label><input type="radio" name="bg" value="white"> 白色背景</label>
+        <label><input type="radio" name="bg" value="custom"> 自定义</label>
+        <input type="color" id="bgColor" value="#ffffff" class="hidden">
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="card hidden" id="resultSection">
+    <div class="section-header"><h2>预览</h2></div>
+    <div class="preview-grid" id="previewGrid"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="downloadIco">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载 .ico 文件
+      </button>
+      <button class="btn btn-secondary" id="downloadPng">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载 PNG 套装 (.zip)
+      </button>
+    </div>
+  </div>
+
+  <!-- Code Reference -->
+  <div class="card">
+    <h2 style="font-size:1.1rem;font-weight:600;margin-bottom:12px">Favicon.ico 网页标签代码说明</h2>
+    <div class="code-block">
+      <p>将生成的 favicon.ico 文件上传到网站根目录，然后在 HTML &lt;head&gt; 中添加以下代码：</p>
+      <pre><code>&lt;!-- 基本 favicon --&gt;
+&lt;link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"&gt;
+
+&lt;!-- 现代浏览器推荐写法 --&gt;
+&lt;link rel="icon" href="/favicon.ico" sizes="any"&gt;
+
+&lt;!-- PNG 格式 favicon（支持透明度） --&gt;
+&lt;link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"&gt;
+&lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"&gt;
+&lt;link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png"&gt;
+
+&lt;!-- Apple Touch Icon --&gt;
+&lt;link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"&gt;
+
+&lt;!-- Web App Manifest --&gt;
+&lt;link rel="manifest" href="/site.webmanifest"&gt;</code></pre>
+      <p class="tip">提示：建议同时提供 .ico 和 PNG 格式，以兼容各种浏览器和设备。</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>所有处理均在浏览器中完成，图片不会上传到服务器</p>
+    <p style="margin-top:4px;">Favicon & ICO 图标在线生成器</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  var sourceImage = null;
+  var fileName = 'favicon';
+
+  // === DOM refs ===
+  var $ = function(id) { return document.getElementById(id); };
+  var dropzone = $('dropzone');
+  var fileInput = $('fileInput');
+  var previewSection = $('previewSection');
+  var settingsSection = $('settingsSection');
+  var resultSection = $('resultSection');
+  var originalCanvas = $('originalCanvas');
+  var imageSize = $('imageSize');
+  var imageName = $('imageName');
+  var sizeGrid = $('sizeGrid');
+  var previewGrid = $('previewGrid');
+  var clearBtn = $('clearBtn');
+  var downloadIcoBtn = $('downloadIco');
+  var downloadPngBtn = $('downloadPng');
+  var bgColor = $('bgColor');
+
+  // === Dropzone ===
+  dropzone.addEventListener('click', function() { fileInput.click(); });
+  dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+  dropzone.addEventListener('dragleave', function() { dropzone.classList.remove('dragover'); });
+  dropzone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    var file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+  fileInput.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (file) loadFile(file);
+  });
+
+  function loadFile(file) {
+    if (!file.type.match(/^image\/(png|jpeg|svg\+xml|webp|gif|bmp)$/)) {
+      alert('请上传 PNG、JPG、SVG、WebP、GIF 或 BMP 格式的图片');
+      return;
+    }
+    fileName = file.name.replace(/\.[^.]+$/, '') || 'favicon';
+    if (file.type === 'image/svg+xml') {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var blob = new Blob([e.target.result], { type: 'image/svg+xml' });
+        var url = URL.createObjectURL(blob);
+        loadImage(url, function() { URL.revokeObjectURL(url); });
+      };
+      reader.readAsText(file);
+    } else {
+      var reader = new FileReader();
+      reader.onload = function(e) { loadImage(e.target.result); };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function loadImage(src, cb) {
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      if (!img.naturalWidth || !img.naturalHeight) {
+        alert('无法读取图片尺寸，请尝试其他文件');
+        if (cb) cb();
+        return;
+      }
+      sourceImage = img;
+      showOriginal(img);
+      generatePreviews();
+      showSections();
+      if (cb) cb();
+    };
+    img.onerror = function() {
+      alert('无法加载图片，请尝试其他文件');
+      if (cb) cb();
+    };
+    img.src = src;
+  }
+
+  function showOriginal(img) {
+    var max = 128;
+    var scale = Math.min(max / img.width, max / img.height, 1);
+    var w = Math.round(img.width * scale);
+    var h = Math.round(img.height * scale);
+    originalCanvas.width = w;
+    originalCanvas.height = h;
+    var ctx = originalCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, w, h);
+    imageSize.textContent = img.width + ' × ' + img.height + ' px';
+    imageName.textContent = fileName;
+  }
+
+  function showSections() {
+    previewSection.classList.remove('hidden');
+    settingsSection.classList.remove('hidden');
+    resultSection.classList.remove('hidden');
+  }
+
+  // === Clear ===
+  clearBtn.addEventListener('click', function() {
+    sourceImage = null;
+    fileInput.value = '';
+    previewSection.classList.add('hidden');
+    settingsSection.classList.add('hidden');
+    resultSection.classList.add('hidden');
+    previewGrid.innerHTML = '';
+  });
+
+  // === Size Presets ===
+  document.querySelectorAll('[data-preset]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var preset = btn.getAttribute('data-preset');
+      var cbs = sizeGrid.querySelectorAll('input[type="checkbox"]');
+      cbs.forEach(function(cb) {
+        if (preset === 'all') cb.checked = true;
+        else if (preset === 'none') cb.checked = false;
+        else if (preset === 'common') cb.checked = ['16', '32', '48'].indexOf(cb.value) !== -1;
+      });
+      if (sourceImage) generatePreviews();
+    });
+  });
+
+  sizeGrid.addEventListener('change', function() {
+    if (sourceImage) generatePreviews();
+  });
+
+  // === Background ===
+  document.querySelectorAll('input[name="bg"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      bgColor.classList.toggle('hidden', radio.value !== 'custom');
+      if (sourceImage) generatePreviews();
+    });
+  });
+  bgColor.addEventListener('input', function() {
+    if (sourceImage) generatePreviews();
+  });
+
+  // === Helpers ===
+  function getSelectedSizes() {
+    var cbs = sizeGrid.querySelectorAll('input[type="checkbox"]:checked');
+    return Array.prototype.map.call(cbs, function(cb) { return parseInt(cb.value); }).sort(function(a, b) { return a - b; });
+  }
+
+  function getBackground() {
+    var sel = document.querySelector('input[name="bg"]:checked').value;
+    if (sel === 'transparent') return null;
+    if (sel === 'white') return '#ffffff';
+    return bgColor.value;
+  }
+
+  function resizeImage(img, size, bg) {
+    var canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, size, size); }
+    var scale = Math.min(size / img.width, size / img.height);
+    var w = Math.round(img.width * scale);
+    var h = Math.round(img.height * scale);
+    var x = Math.round((size - w) / 2);
+    var y = Math.round((size - h) / 2);
+    ctx.drawImage(img, x, y, w, h);
+    return canvas;
+  }
+
+  // === Generate Previews ===
+  function generatePreviews() {
+    var sizes = getSelectedSizes();
+    var bg = getBackground();
+    previewGrid.innerHTML = '';
+    sizes.forEach(function(size) {
+      var canvas = resizeImage(sourceImage, size, bg);
+      var item = document.createElement('div');
+      item.className = 'preview-item';
+      var ds = Math.min(size, 64);
+      var dc = document.createElement('canvas');
+      dc.width = ds; dc.height = ds;
+      var dctx = dc.getContext('2d');
+      dctx.imageSmoothingEnabled = true;
+      dctx.imageSmoothingQuality = 'high';
+      dctx.drawImage(canvas, 0, 0, ds, ds);
+      item.appendChild(dc);
+      var lbl = document.createElement('span');
+      lbl.className = 'lbl'; lbl.textContent = size + 'px';
+      item.appendChild(lbl);
+      previewGrid.appendChild(item);
+    });
+  }
+
+  // === Canvas to buffer ===
+  function canvasToPngBuffer(canvas) {
+    return new Promise(function(resolve) {
+      canvas.toBlob(function(blob) { blob.arrayBuffer().then(resolve); }, 'image/png');
+    });
+  }
+
+  function canvasToPngBlob(canvas) {
+    return new Promise(function(resolve) {
+      canvas.toBlob(function(blob) { resolve(blob); }, 'image/png');
+    });
+  }
+
+  // === Build ICO ===
+  async function buildIco(sizes, bg) {
+    var pngBuffers = [];
+    for (var i = 0; i < sizes.length; i++) {
+      var canvas = resizeImage(sourceImage, sizes[i], bg);
+      pngBuffers.push(await canvasToPngBuffer(canvas));
+    }
+    var count = pngBuffers.length;
+    var headerSize = 6, entrySize = 16;
+    var dataOffset = headerSize + entrySize * count;
+    var totalSize = dataOffset;
+    pngBuffers.forEach(function(b) { totalSize += b.byteLength; });
+
+    var buffer = new ArrayBuffer(totalSize);
+    var view = new DataView(buffer);
+    view.setUint16(0, 0, true);
+    view.setUint16(2, 1, true);
+    view.setUint16(4, count, true);
+
+    var currentOffset = dataOffset;
+    for (var j = 0; j < count; j++) {
+      var sz = sizes[j];
+      var pngBuf = pngBuffers[j];
+      var entryOff = headerSize + j * entrySize;
+      view.setUint8(entryOff, sz >= 256 ? 0 : sz);
+      view.setUint8(entryOff + 1, sz >= 256 ? 0 : sz);
+      view.setUint8(entryOff + 2, 0);
+      view.setUint8(entryOff + 3, 0);
+      view.setUint16(entryOff + 4, 1, true);
+      view.setUint16(entryOff + 6, 32, true);
+      view.setUint32(entryOff + 8, pngBuf.byteLength, true);
+      view.setUint32(entryOff + 12, currentOffset, true);
+      var pngArray = new Uint8Array(pngBuf);
+      var destArray = new Uint8Array(buffer, currentOffset, pngBuf.byteLength);
+      destArray.set(pngArray);
+      currentOffset += pngBuf.byteLength;
+    }
+    return new Blob([buffer], { type: 'image/x-icon' });
+  }
+
+  // === Save helper ===
+  function saveBlob(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  }
+
+  // === Download Handlers ===
+  downloadIcoBtn.addEventListener('click', async function() {
+    if (!sourceImage) return;
+    var sizes = getSelectedSizes();
+    if (sizes.length === 0) { alert('请至少选择一个尺寸'); return; }
+    var bg = getBackground();
+    var blob = await buildIco(sizes, bg);
+    saveBlob(blob, fileName + '.ico');
+  });
+
+  downloadPngBtn.addEventListener('click', async function() {
+    if (!sourceImage) return;
+    var sizes = getSelectedSizes();
+    if (sizes.length === 0) { alert('请至少选择一个尺寸'); return; }
+    // JSZip 来自 CDN，断网/加载失败时此前会静默报错，这里给出明确提示
+    if (typeof JSZip === 'undefined') {
+      alert('「PNG 套装 (.zip)」需要联网加载打包组件（JSZip），当前不可用。\n请联网后刷新页面重试；「下载 .ico 文件」不依赖该组件，可正常使用。');
+      return;
+    }
+    var bg = getBackground();
+    var zip = new JSZip();
+    for (var i = 0; i < sizes.length; i++) {
+      var canvas = resizeImage(sourceImage, sizes[i], bg);
+      var blob = await canvasToPngBlob(canvas);
+      zip.file(fileName + '-' + sizes[i] + 'x' + sizes[i] + '.png', blob);
+    }
+    var zipBlob = await zip.generateAsync({ type: 'blob' });
+    saveBlob(zipBlob, fileName + '-png-set.zip');
+  });
+
+})();
+</script>
+</body>
+</html>
